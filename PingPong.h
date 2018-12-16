@@ -22,6 +22,7 @@ __published:	// IDE-managed Components
     TTimer *moveDownRight;
     TImage *ball;
     TTimer *moveBall;
+    TLabel *Label1;
     void __fastcall moveUpLeftTimer(TObject *Sender);
     void __fastcall moveDownLeftTimer(TObject *Sender);
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
