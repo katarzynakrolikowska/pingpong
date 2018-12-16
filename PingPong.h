@@ -20,6 +20,8 @@ __published:	// IDE-managed Components
     TShape *paddleR;
     TTimer *moveUpRight;
     TTimer *moveDownRight;
+    TImage *ball;
+    TTimer *moveBall;
     void __fastcall moveUpLeftTimer(TObject *Sender);
     void __fastcall moveDownLeftTimer(TObject *Sender);
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
@@ -29,6 +31,7 @@ __published:	// IDE-managed Components
     void __fastcall moveUpRightTimer(TObject *Sender);
     void __fastcall moveDownRightTimer(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
+    void __fastcall moveBallTimer(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
     __fastcall TForm1(TComponent* Owner);
