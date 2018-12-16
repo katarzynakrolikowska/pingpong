@@ -9,6 +9,8 @@
 #pragma resource "*.dfm"
 TForm1 *Form1;
 int paddleLStartLeft = 50, paddleRStartLeft = 850, paddlesStartTop = 150;
+int ballStartLeft = 450, ballStartTop = 220;
+int ballVerticalMovePerTime = 8, ballHorizontalMovePerTime = 8;
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
     : TForm(Owner)
@@ -66,6 +68,10 @@ void __fastcall TForm1::moveDownRightTimer(TObject *Sender)
 
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
+
+    //newgame ball position
+    ball -> Left = ballStartLeft;
+    ball -> Top = ballStartTop;
     //newgame paddles position
     paddleL -> Left = paddleLStartLeft;
     paddleL -> Top = paddlesStartTop;
@@ -73,4 +79,47 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
     paddleR -> Top = paddlesStartTop;
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TForm1::moveBallTimer(TObject *Sender)
+{
+    ball -> Left -= ballHorizontalMovePerTime;
+    ball -> Top += ballVerticalMovePerTime;
+
+    //bounce from bottom wall
+    if(ball -> Top + ball -> Height >= background -> Height )
+        ballVerticalMovePerTime = -ballVerticalMovePerTime;
+
+    //bounce from top wall
+    if(ball -> Top <= background -> Top )
+        ballVerticalMovePerTime = -ballVerticalMovePerTime;
+
+
+    //bounce from left paddle
+    if((ball -> Top + ball -> Height - 5 >= paddleL -> Top) &&
+        (ball -> Top - 5 <= paddleL -> Top + paddleL -> Height) &&
+        (ball -> Left <= paddleL -> Left + paddleL -> Width))
+        ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
+    else if(ball -> Left <= paddleL -> Left + paddleL -> Width){
+         moveBall -> Enabled = false;
+         ball -> Visible = false;
+    }
+
+    //bounce from right paddle
+    if((ball -> Top + ball -> Height - 5 >= paddleR -> Top) &&
+        (ball -> Top - 5 <= paddleR -> Top + paddleR -> Height) &&
+        (ball -> Left + ball -> Width >= paddleR -> Left))
+        ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
+    else if(ball -> Left + ball -> Width >= paddleR -> Left){
+         moveBall -> Enabled = false;
+         ball -> Visible = false;
+    }
+
+
+
+}
+//---------------------------------------------------------------------------
+
+
+
+
 
