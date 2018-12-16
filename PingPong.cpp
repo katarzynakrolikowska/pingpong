@@ -11,10 +11,27 @@ TForm1 *Form1;
 int paddleLStartLeft = 50, paddleRStartLeft = 980, paddlesStartTop = 150;
 int ballStartLeft = 450, ballStartTop = 220;
 int ballVerticalMovePerTime = 8, ballHorizontalMovePerTime = 8;
+char whoWon = {0};
+int pointsPaddleL = 0, pointsPaddleR = 0;
+int amountOfBallBouncing =0;
 
 void bounceBallFromPaddleCenter(){
     Form1 -> moveBall -> Interval = 15;
     ballHorizontalMovePerTime += 1;
+}
+
+void displayResults(){
+    Form1 -> moveBall -> Enabled = false;
+    Form1 -> ball -> Visible = false;
+    if(whoWon == 'P')
+        Form1 -> whosePoint -> Caption = "Punkt dla gracza prawego >";
+    else
+        Form1 -> whosePoint -> Caption = "< Punkt dla gracza lewego";
+    Form1 -> whosePoint -> Visible = true;
+    Form1 -> result -> Caption = IntToStr(pointsPaddleL) + ":" + IntToStr(pointsPaddleR);
+    Form1 -> result -> Visible = true;
+    Form1 -> bouncingAmount -> Caption = "Ilosc odbic: " + IntToStr(amountOfBallBouncing);
+    Form1 -> bouncingAmount -> Visible = true;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -107,11 +124,13 @@ void __fastcall TForm1::moveBallTimer(TObject *Sender)
                 (paddleL -> Top + paddleL -> Height / 2 <= ball -> Top + ball -> Height))
                 bounceBallFromPaddleCenter();
             ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
+            amountOfBallBouncing ++;
      }
-
+    // left paddle lose
     else if(ball -> Left <= paddleL -> Left + paddleL -> Width){
-         moveBall -> Enabled = false;
-         ball -> Visible = false;
+         whoWon = 'P';
+         pointsPaddleR ++;
+         displayResults();
     }
 
     //bounce from right paddle
@@ -122,10 +141,13 @@ void __fastcall TForm1::moveBallTimer(TObject *Sender)
             (paddleR -> Top + paddleR -> Height / 2 <= ball -> Top + ball -> Height))
             bounceBallFromPaddleCenter();
         ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
+        amountOfBallBouncing ++;
     }
+    //right paddle lose
     else if(ball -> Left + ball -> Width >= paddleR -> Left){
-         moveBall -> Enabled = false;
-         ball -> Visible = false;
+        whoWon = 'L';
+        pointsPaddleL ++;
+        displayResults();
     }
 
 
