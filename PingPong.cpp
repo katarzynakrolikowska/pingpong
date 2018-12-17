@@ -9,29 +9,60 @@
 #pragma resource "*.dfm"
 TForm1 *Form1;
 int paddleLStartLeft = 50, paddleRStartLeft = 980, paddlesStartTop = 150;
-int ballStartLeft = 450, ballStartTop = 220;
-int ballVerticalMovePerTime = 8, ballHorizontalMovePerTime = 8;
+int ballStartLeft = 470, ballStartTop = 320;
+int ballVerticalMovePerTime, ballHorizontalMovePerTime;
 char whoWon = {0};
 int pointsPaddleL = 0, pointsPaddleR = 0;
-int amountOfBallBouncing =0;
+int amountOfBallBouncing = 0;
 
 void bounceBallFromPaddleCenter(){
     Form1 -> moveBall -> Interval = 15;
     ballHorizontalMovePerTime += 1;
 }
 
+void whoStartGame(){
+    if(whoWon == 'P'){
+        ballVerticalMovePerTime = 8, ballHorizontalMovePerTime = -8;
+    }else if(whoWon == 'L') {
+        ballVerticalMovePerTime = -8, ballHorizontalMovePerTime = 8;
+    }else{
+        ballVerticalMovePerTime = 8, ballHorizontalMovePerTime = 8;
+    }
+}
+
+void startGame(){
+    amountOfBallBouncing = 0;
+    whoStartGame();
+    Form1 -> moveBall -> Interval = 20;
+    Form1 -> ball -> Left = 470;
+    Form1 -> ball -> Top = 250;
+    Form1 -> ball -> Visible = true;
+    Form1 -> ButtonNewGame -> Visible = false;
+    Form1 -> BitBtnNextRound -> Visible = false;
+    Form1 -> whosePoint -> Visible = false;
+    Form1 -> result -> Visible = false;
+    Form1 -> bouncingAmount -> Visible = false;
+    Form1 -> moveBall -> Enabled = true;
+}
+
 void displayResults(){
     Form1 -> moveBall -> Enabled = false;
     Form1 -> ball -> Visible = false;
-    if(whoWon == 'P')
+    if(whoWon == 'P'){
         Form1 -> whosePoint -> Caption = "Punkt dla gracza prawego >";
-    else
+        Form1 -> BitBtnNextRound -> Caption = "< Nastepna runda";
+    }else{
         Form1 -> whosePoint -> Caption = "< Punkt dla gracza lewego";
+        Form1 -> BitBtnNextRound -> Caption = "Nastepna runda >";
+    }
     Form1 -> whosePoint -> Visible = true;
     Form1 -> result -> Caption = IntToStr(pointsPaddleL) + ":" + IntToStr(pointsPaddleR);
     Form1 -> result -> Visible = true;
     Form1 -> bouncingAmount -> Caption = "Ilosc odbic: " + IntToStr(amountOfBallBouncing);
     Form1 -> bouncingAmount -> Visible = true;
+    Form1 -> BitBtnNextRound -> Visible = true;
+    
+    Form1 -> ButtonNewGame -> Visible = true;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -100,6 +131,21 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
     paddleL -> Top = paddlesStartTop;
     paddleR -> Left = paddleRStartLeft;
     paddleR -> Top = paddlesStartTop;
+
+    ball -> Visible = true;
+    moveBall -> Enabled = false;
+    moveDownLeft -> Enabled = false;
+    moveUpLeft -> Enabled = false;
+    moveDownRight -> Enabled = false;
+    moveUpRight -> Enabled = false;
+
+    ButtonNewGame -> Caption = "Nowa gra";
+    ButtonNewGame -> Visible = true;
+
+    whosePoint -> Caption = "Zagrajmy w PingPonga!";
+    whosePoint -> Visible = true;
+
+
 }
 //---------------------------------------------------------------------------
 
@@ -150,12 +196,24 @@ void __fastcall TForm1::moveBallTimer(TObject *Sender)
         displayResults();
     }
 
-
-
 }
 //---------------------------------------------------------------------------
 
 
 
+void __fastcall TForm1::ButtonNewGaClick(TObject *Sender)
+{
+    pointsPaddleL = 0; pointsPaddleR = 0;
+    whoWon = '0';
+    startGame();
+}
+//---------------------------------------------------------------------------
 
+
+
+void __fastcall TForm1::BitBtnNextRoundClick(TObject *Sender)
+{
+    startGame();
+}
+//---------------------------------------------------------------------------
 

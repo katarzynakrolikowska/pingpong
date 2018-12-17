@@ -9,6 +9,7 @@
 #include <Forms.hpp>
 #include <ExtCtrls.hpp>
 #include <Graphics.hpp>
+#include <Buttons.hpp>
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -25,6 +26,8 @@ __published:	// IDE-managed Components
     TLabel *whosePoint;
     TLabel *result;
     TLabel *bouncingAmount;
+    TButton *ButtonNewGame;
+    TBitBtn *BitBtnNextRound;
     void __fastcall moveUpLeftTimer(TObject *Sender);
     void __fastcall moveDownLeftTimer(TObject *Sender);
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
@@ -35,6 +38,8 @@ __published:	// IDE-managed Components
     void __fastcall moveDownRightTimer(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall moveBallTimer(TObject *Sender);
+    void __fastcall ButtonNewGaClick(TObject *Sender);
+    void __fastcall BitBtnNextRoundClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
     __fastcall TForm1(TComponent* Owner);
