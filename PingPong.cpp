@@ -24,7 +24,8 @@ int pointsPaddleL = 0, pointsPaddleR = 0;
 int amountOfBallBouncing = 0;
 
 void bounceBallFromPaddleCenter(){
-    Form1 -> moveBall -> Interval = 15;
+    if(Form1 -> moveBall -> Interval > 15)
+        Form1 -> moveBall -> Interval = 15;
     if(ballHorizontalMovePerTime > 0)
         ballHorizontalMovePerTime += 1;
     else ballHorizontalMovePerTime -=1;
@@ -32,7 +33,7 @@ void bounceBallFromPaddleCenter(){
 
 void makeBallFaster(){
     if(amountOfBallBouncing % 4 == 0){
-        if(Form1 -> moveBall -> Interval > 15){
+        if(Form1 -> moveBall -> Interval > 10){
             Form1 -> moveBall -> Interval--;
         }
     }
@@ -92,18 +93,16 @@ void displayResults(){
 }
 
 void makeBallInvisible(){
-
-        if((Form1 -> ball -> Left + Form1 -> ball -> Width / 2 > invisibleZoneStartLeft) &&
-            (Form1 -> ball -> Left + Form1 -> ball -> Width / 2 < invisibleZoneEndLeft))
-            Form1 -> ball -> Visible = false;
-        else Form1 -> ball -> Visible = true;
-
+    if((Form1 -> ball -> Left + Form1 -> ball -> Width / 2 > invisibleZoneStartLeft) &&
+        (Form1 -> ball -> Left + Form1 -> ball -> Width / 2 < invisibleZoneEndLeft))
+        Form1 -> ball -> Visible = false;
+    else Form1 -> ball -> Visible = true;
 }
 
 void extendInvisibleZone(){
     if(amountOfBallBouncing < 50){
-        invisibleZoneStartLeft--;
-        invisibleZoneEndLeft++;
+        invisibleZoneStartLeft -= 5;
+        invisibleZoneEndLeft += 5;
     }
 }
 //---------------------------------------------------------------------------
@@ -161,7 +160,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender){
     "Prawy gracz steruje wciskajπc strza≥ki do gÛry i w dÛ≥.\n\n"
     "Dla urozmaicenia zabawy:\n"
     "Kiedy odbijesz pi≥kÍ na úrodku paletki, wÛwczas zmienisz jej kπt odbicia i pi≥ka przyúpieszy.\n"
-    "Im d≥uøej odbijasz, tym pi≥ka szybciej przemieszcza siÍ.\n"
+    "Im d≥uøej odbijasz, tym pi≥ka szybciej przemieszcza siÍ i chwilowo staje siÍ niewidoczna.\n"
     "Moøesz dowolnie zmieniaÊ pole gry.\n\n"
     "Mi≥ej zabawy!");
 
@@ -225,7 +224,7 @@ void __fastcall TForm1::moveBallTimer(TObject *Sender){
 void __fastcall TForm1::ButtonNewGaClick(TObject *Sender){
     if(whoWonLastRound == 'P' || whoWonLastRound == 'L'){
         if(Application -> MessageBox("Czy na pewno chcesz zaczπÊ od nowa?", "Potwierdü",
-        MB_YESNO | MB_ICONQUESTION) == IDYES ){
+        MB_YESNO | MB_ICONQUESTION) == IDYES){
             startNewGame();
         }
     }else{
