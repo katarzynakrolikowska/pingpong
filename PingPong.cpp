@@ -16,7 +16,7 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TForm1 *Form1;
-int paddleLStartLeft = 50, paddleRStartLeft = 980, paddlesStartTop = 150;
+int invisibleZoneStartLeft, invisibleZoneEndLeft;
 int ballStartGameLeft = 490, ballStartGameTop = 250;
 int ballVerticalMovePerTime, ballHorizontalMovePerTime;
 char whoWonLastRound = {0};
@@ -25,7 +25,9 @@ int amountOfBallBouncing = 0;
 
 void bounceBallFromPaddleCenter(){
     Form1 -> moveBall -> Interval = 15;
-    ballHorizontalMovePerTime += 1;
+    if(ballHorizontalMovePerTime > 0)
+        ballHorizontalMovePerTime += 1;
+    else ballHorizontalMovePerTime -=1;
 }
 
 void makeBallFaster(){
@@ -36,7 +38,7 @@ void makeBallFaster(){
     }
 }
 
-void whoStartGame(){
+void setBallAtGameStart(){
     if(whoWonLastRound == 'P'){
         ballVerticalMovePerTime = 8, ballHorizontalMovePerTime = -10;
     }else if(whoWonLastRound == 'L') {
@@ -48,7 +50,9 @@ void whoStartGame(){
 
 void startGame(){
     amountOfBallBouncing = 0;
-    whoStartGame();
+    invisibleZoneStartLeft = 480;
+    invisibleZoneEndLeft = 520;
+    setBallAtGameStart();
     Form1 -> moveBall -> Interval = 20;
     Form1 -> ball -> Left = ballStartGameLeft;
     Form1 -> ball -> Top = ballStartGameTop;
@@ -84,32 +88,44 @@ void displayResults(){
     Form1 -> bouncingAmount -> Caption = "IloúÊ odbiÊ: " + IntToStr(amountOfBallBouncing);
     Form1 -> bouncingAmount -> Visible = true;
     Form1 -> BitBtnNextRound -> Visible = true;
-    
     Form1 -> ButtonNewGame -> Visible = true;
 }
 
-//---------------------------------------------------------------------------
-__fastcall TForm1::TForm1(TComponent* Owner)
-    : TForm(Owner)
-{
+void makeBallInvisible(){
+
+        if((Form1 -> ball -> Left + Form1 -> ball -> Width / 2 > invisibleZoneStartLeft) &&
+            (Form1 -> ball -> Left + Form1 -> ball -> Width / 2 < invisibleZoneEndLeft))
+            Form1 -> ball -> Visible = false;
+        else Form1 -> ball -> Visible = true;
+
+}
+
+void extendInvisibleZone(){
+    if(amountOfBallBouncing < 50){
+        invisibleZoneStartLeft--;
+        invisibleZoneEndLeft++;
+    }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::moveUpLeftTimer(TObject *Sender)
-{   //move up left paddle
+__fastcall TForm1::TForm1(TComponent* Owner)
+    : TForm(Owner){
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::moveUpLeftTimer(TObject *Sender){
+    //move up left paddle
     if(paddleL -> Top > 10) paddleL -> Top -= 10;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::moveDownLeftTimer(TObject *Sender)
-{    //move down left paddle
+void __fastcall TForm1::moveDownLeftTimer(TObject *Sender){
+    //move down left paddle
      if(paddleL -> Top + paddleL -> Height < background -> Top + background -> Height - 10)
         paddleL -> Top += 10;
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
-      TShiftState Shift)
-{
+      TShiftState Shift){
     if(Key == 'A') moveUpLeft -> Enabled = true;
     if(Key == 'Z') moveDownLeft -> Enabled = true;
     if(Key == VK_UP) moveUpRight -> Enabled = true;
@@ -118,35 +134,28 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::FormKeyUp(TObject *Sender, WORD &Key,
-      TShiftState Shift)
-{
+      TShiftState Shift){
     if(Key == 'A') moveUpLeft -> Enabled = false;
     if(Key == 'Z') moveDownLeft -> Enabled = false;
     if(Key == VK_UP) moveUpRight -> Enabled = false;
     if(Key == VK_DOWN) moveDownRight -> Enabled = false;
-
 }
 //---------------------------------------------------------------------------
 
-
-void __fastcall TForm1::moveUpRightTimer(TObject *Sender)
-{   //move up right paddle
+void __fastcall TForm1::moveUpRightTimer(TObject *Sender){
+    //move up right paddle
     if(paddleR -> Top > 10) paddleR -> Top -= 10;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::moveDownRightTimer(TObject *Sender)
-{
+void __fastcall TForm1::moveDownRightTimer(TObject *Sender){
     //move down right paddle
     if(paddleR -> Top + paddleR -> Height < background -> Top + background -> Height - 10)
         paddleR -> Top += 10;
 }
 //---------------------------------------------------------------------------
 
-
-void __fastcall TForm1::FormCreate(TObject *Sender)
-{
-
+void __fastcall TForm1::FormCreate(TObject *Sender){
     ShowMessage("Witaj w grze PingPong.\n\n"
     "Lewy gracz steruje wciskajπc klawisze A oraz Z.\n"
     "Prawy gracz steruje wciskajπc strza≥ki do gÛry i w dÛ≥.\n\n"
@@ -159,11 +168,10 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::moveBallTimer(TObject *Sender)
-{
+void __fastcall TForm1::moveBallTimer(TObject *Sender){
     ball -> Left -= ballHorizontalMovePerTime;
     ball -> Top += ballVerticalMovePerTime;
-
+    makeBallInvisible();
     //bounce from bottom wall
     if(ball -> Top + ball -> Height >= background -> Height )
         ballVerticalMovePerTime = -ballVerticalMovePerTime;
@@ -181,8 +189,9 @@ void __fastcall TForm1::moveBallTimer(TObject *Sender)
                 (paddleL -> Top + paddleL -> Height / 2 <= ball -> Top + ball -> Height))
                 bounceBallFromPaddleCenter();
             else makeBallFaster();
-            ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
-            amountOfBallBouncing ++;
+        ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
+        amountOfBallBouncing ++;
+        extendInvisibleZone();
      }
     // left paddle lose
     else if(ball -> Left <= paddleL -> Left + paddleL -> Width){
@@ -200,8 +209,9 @@ void __fastcall TForm1::moveBallTimer(TObject *Sender)
             (paddleR -> Top + paddleR -> Height / 2 <= ball -> Top + ball -> Height))
             bounceBallFromPaddleCenter();
         else makeBallFaster();
-        ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
-        amountOfBallBouncing ++;
+    ballHorizontalMovePerTime = -ballHorizontalMovePerTime;
+    amountOfBallBouncing ++;
+    extendInvisibleZone();
     }
     //right paddle lose
     else if(ball -> Left + ball -> Width >= paddleR -> Left){
@@ -209,14 +219,11 @@ void __fastcall TForm1::moveBallTimer(TObject *Sender)
         pointsPaddleL ++;
         displayResults();
     }
-
 }
 //---------------------------------------------------------------------------
 
-
-
-void __fastcall TForm1::ButtonNewGaClick(TObject *Sender)
-{   if(whoWonLastRound == 'P' || whoWonLastRound == 'L'){
+void __fastcall TForm1::ButtonNewGaClick(TObject *Sender){
+    if(whoWonLastRound == 'P' || whoWonLastRound == 'L'){
         if(Application -> MessageBox("Czy na pewno chcesz zaczπÊ od nowa?", "Potwierdü",
         MB_YESNO | MB_ICONQUESTION) == IDYES ){
             startNewGame();
@@ -227,8 +234,7 @@ void __fastcall TForm1::ButtonNewGaClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::BitBtnNextRoundClick(TObject *Sender)
-{
+void __fastcall TForm1::BitBtnNextRoundClick(TObject *Sender){
     startGame();
 }
 //---------------------------------------------------------------------------
